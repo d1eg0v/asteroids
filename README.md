@@ -4,7 +4,11 @@ A browser Asteroids clone built with vanilla JavaScript + HTML5 Canvas: ES modul
 no bundler, no dependencies. Everything is vector-drawn with Canvas strokes — no
 sprites, no image assets. Audio is optional (synth-beep fallback).
 
-## Run
+## Play
+
+**Live:** https://d1eg0v.github.io/asteroids/
+
+Or run locally:
 
 ```bash
 python3 -m http.server 8000
@@ -22,6 +26,10 @@ Open http://localhost:8000/ in any modern browser.
 | Shift or H | hyperspace (risky teleport) |
 | P | pause |
 | M | mute |
+
+Touch: on-screen buttons at the bottom corners (◀ ▶ rotate, ● fire, ▲ thrust,
+H hyperspace) — pointer events map to the same input model, so the game plays on
+mobile with no keyboard.
 
 ## Project layout
 

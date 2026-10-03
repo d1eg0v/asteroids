@@ -24,7 +24,43 @@ export function burst(x, y, n, color) {
   if (particles.length > CFG.particles.max) particles.splice(0, particles.length - CFG.particles.max);
 }
 
+const dust = []; // thruster exhaust puffs (separate pool so debris cap doesn't cull them)
+let dustAcc = 0; // fractional emit accumulator
+
+export function emitDust(x, y, angle, svx, svy, dt) {
+  const D = CFG.particles.dust;
+  dustAcc += D.rate * dt;
+  const back = angle + Math.PI; // exhaust goes opposite to the nose
+  const bx = Math.cos(angle);
+  const by = Math.sin(angle);
+  while (dustAcc >= 1) {
+    dustAcc -= 1;
+    const side = (Math.random() * 2 - 1) * D.lateral * CFG.ship.r;
+    const tail = D.tailOffset * CFG.ship.r;
+    const a = back + (Math.random() * 2 - 1) * D.spread;
+    const v = D.speedMin + Math.random() * (D.speedMax - D.speedMin);
+    const life = D.lifeMin + Math.random() * (D.lifeMax - D.lifeMin);
+    dust.push({
+      x: x - bx * tail - by * side,
+      y: y - by * tail + bx * side,
+      vx: svx + Math.cos(a) * v, // inherit ship velocity so the trail drifts naturally
+      vy: svy + Math.sin(a) * v,
+      r: D.sizeMin + Math.random() * (D.sizeMax - D.sizeMin),
+      life,
+      maxLife: life,
+    });
+  }
+  if (dust.length > D.max) dust.splice(0, dust.length - D.max);
+}
+
 export function update(dt) {
+  for (let i = dust.length - 1; i >= 0; i--) {
+    const p = dust[i];
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.life -= dt;
+    if (p.life <= 0) dust.splice(i, 1);
+  }
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
     p.x += p.vx * dt;
@@ -50,6 +86,14 @@ export function shakeOffset() {
 }
 
 export function draw(ctx) {
+  ctx.fillStyle = CFG.particles.dust.color;
+  for (const p of dust) {
+    const k = Math.max(0, p.life / p.maxLife);
+    ctx.globalAlpha = k;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * k, 0, Math.PI * 2); // shrinks + fades
+    ctx.fill();
+  }
   ctx.lineWidth = CFG.particles.lineWidth;
   for (const p of particles) {
     ctx.strokeStyle = p.color;
@@ -65,6 +109,7 @@ export function draw(ctx) {
 
 // Attach methods to the pool array (same pattern as asteroids.js/ufos).
 particles.burst = burst;
+particles.emitDust = emitDust;
 particles.update = update;
 particles.shake = shake;
 particles.shakeOffset = shakeOffset;

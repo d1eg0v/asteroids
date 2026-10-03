@@ -66,6 +66,10 @@ function update(dt) {
     } else {
       thrustTimer = 0;
     }
+    bullets.update(dt); // move/age/wrap bullets BEFORE resolve() tests them
+    if (ship.alive && held('ArrowUp')) {
+      particles.emitDust(ship.x, ship.y, ship.angle, ship.vx, ship.vy, dt); // thruster dust
+    }
     asteroids.update(dt);
     ufos.update(dt); // saucers traverse + fire (after asteroids so positions current)
     resolve(); // AFTER bullets/asteroids/ufos update so positions are current

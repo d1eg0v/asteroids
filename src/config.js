@@ -125,6 +125,20 @@ export const CFG = Object.freeze({
     burst: { large: 14, medium: 9, small: 6, ufoLarge: 12, ufoSmall: 8, ship: 16 }, // debris count per event
     shake: { large: 6, medium: 4, small: 2, ufoLarge: 5, ufoSmall: 3, ship: 8 }, // shake px per event
     shakeDuration: 0.35, // s of shake per request
+    dust: { // thruster exhaust puffs
+      rate: 140, // particles emitted per second while thrusting
+      max: 160, // cap (oldest culled)
+      tailOffset: 0.6, // emit point behind ship centre, multiple of CFG.ship.r
+      lateral: 0.35, // sideways spawn jitter, multiple of CFG.ship.r
+      speedMin: 60, // px/s ejection speed (relative to ship), backwards
+      speedMax: 160,
+      spread: 0.35, // rad cone half-angle around the exhaust direction
+      lifeMin: 0.25, // s
+      lifeMax: 0.6,
+      sizeMin: 0.8, // px start radius range
+      sizeMax: 2.2,
+      color: '#ffb36b',
+    },
   },
   render: {
     glow: 6, // ctx.shadowBlur px for entity strokes
